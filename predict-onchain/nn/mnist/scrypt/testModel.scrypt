@@ -1,0 +1,12 @@
+import "../train/modelParams.scrypt";
+import "model.scrypt";
+
+
+contract TestModel {
+
+    public function testPredict(int[ModelParams.N_INPUTS] inputs, int res) {
+        require(Model.predict(inputs) == res);
+    }
+
+}
+

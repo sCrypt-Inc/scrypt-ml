@@ -1,0 +1,89 @@
+import "../train/modelParams.scrypt";
+
+
+library Model {
+
+    static function applyWeights0(int[ModelParams.N_INPUTS] in) : int[ModelParams.N_NODES_HL] {
+        int[ModelParams.N_NODES_HL] res = repeat(0, ModelParams.N_NODES_HL); 
+
+        loop (ModelParams.N_NODES_HL) : idxRes {
+            loop (ModelParams.N_NODES_HL) : i {
+                loop (ModelParams.N_INPUTS) : j {
+                    res[idxRes] += ModelParams.WEIGHTS_0[i][j] * in[j];
+                }
+            }
+        }
+
+        return res;
+    }
+
+    static function applyWeights1(int[ModelParams.N_NODES_HL] in) : int[ModelParams.N_NODES_OUT] {
+        int[ModelParams.N_NODES_OUT] res = repeat(0, ModelParams.N_NODES_OUT); 
+
+        loop (ModelParams.N_NODES_OUT) : idxRes {
+            loop (ModelParams.N_NODES_OUT) : i {
+                loop (ModelParams.N_NODES_HL) : j {
+                    res[idxRes] += ModelParams.WEIGHTS_1[i][j] * in[j];
+                }
+            }
+        }
+
+        return res;
+    }
+
+    static function addBiases0(int[ModelParams.N_NODES_HL] in) : int[ModelParams.N_NODES_HL] {
+        int[ModelParams.N_NODES_HL] res = repeat(0, ModelParams.N_NODES_HL); 
+
+        loop (ModelParams.N_NODES_HL) : i {
+            res[i] = in[i] + ModelParams.BIASES_0[i];
+        }
+
+        return res;
+    }
+
+    static function addBiases1(int[ModelParams.N_NODES_OUT] in) : int[ModelParams.N_NODES_OUT] {
+        int[ModelParams.N_NODES_OUT] res = repeat(0, ModelParams.N_NODES_OUT); 
+
+        loop (ModelParams.N_NODES_OUT) : i {
+            res[i] = in[i] + ModelParams.BIASES_1[i];
+        }
+
+        return res;
+    }
+
+    static function applyReLU(int[ModelParams.N_NODES_HL] in) : int[ModelParams.N_NODES_HL] {
+        int[ModelParams.N_NODES_HL] res = repeat(0, ModelParams.N_NODES_HL); 
+
+        loop (ModelParams.N_NODES_HL) : i {
+            int inVal = in[i];
+            if inVal > 0 {
+                res[i] = inVal;
+            }
+        }
+
+        return res;
+    }
+
+    static function predict(int[ModelParams.N_INPUTS] inputs) : int {
+        int[ModelParams.N_NODES_HL] step0 = applyWeights0(inputs);
+        int[ModelParams.N_NODES_HL] step1 = addBiases0(step0);
+        int[ModelParams.N_NODES_HL] step2 = applyReLU(step1);
+        int[ModelParams.N_NODES_OUT] step3 = applyWeights1(step2);
+        int[ModelParams.N_NODES_OUT] step4 = addBiases1(step3);
+        // TODO: apply softmax func ?
+
+        int idxMaxVal = 0;
+        int maxVal = -9999999999999999;     // TODO
+        loop (ModelParams.N_NODES_OUT) : i {
+            int outVal = step4[i];
+            if outVal > maxVal {
+                idxMaxVal = i;
+                maxVal = outVal;
+            }
+        }
+
+        return idxMaxVal;
+    }
+
+}
+
