@@ -6,8 +6,12 @@ from tensorflow.keras import layers
 
 
 # Model / data parameters
-num_classes = 10
 num_pixels = 28 * 28
+num_nodes_hl = 5
+num_classes = 10
+
+batch_size = 469
+epochs = 50
 
 # Load the data and split it between train and test sets.
 (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
@@ -17,12 +21,9 @@ x_train = x_train.reshape(x_train.shape[0], num_pixels).astype("float32") / 255
 #x_test = x_test.reshape(x_test.shape[0], num_pixels).astype("float32") / 255
 
 # Model
-model = keras.Sequential([ layers.Dense( 128, activation="relu" ),
-                           layers.Dense( 10, activation="softmax" )
+model = keras.Sequential([ layers.Dense(num_nodes_hl, activation="relu" ),
+                           layers.Dense(num_classes, activation="softmax" )
                           ]) 
-
-batch_size = 469
-epochs = 50
 
 model.compile(loss="sparse_categorical_crossentropy", optimizer="rmsprop", metrics=["accuracy"])
 
@@ -49,20 +50,21 @@ with open('modelParams.scrypt', 'w') as f:
     f.write('''
     library ModelParams {{
 
-        static const int N_INPUTS = 784;
-        static const int N_NODES_HL = 128;
-        static const int N_NODES_OUT = 10;
+        static const int N_INPUTS = {};
+        static const int N_NODES_HL = {};
+        static const int N_NODES_OUT = {};
         
-        int[N_INPUTS][N_NODES_HL] WEIGHTS_0 = {};
+        static const int[N_INPUTS][N_NODES_HL] WEIGHTS_0 = {};
 
-        int[N_NODES_HL][N_NODES_OUT] WEIGHTS_1 = {};
+        static const int[N_NODES_HL][N_NODES_OUT] WEIGHTS_1 = {};
         
-        int[N_NODES_HL] BIASES_0 = {};
+        static const int[N_NODES_HL] BIASES_0 = {};
 
-        int[N_NODES_OUT] BIASES_1 = {};
+        static const int[N_NODES_OUT] BIASES_1 = {};
 
     }}
-    '''.format(weights_by_layer[0], weights_by_layer[1],
+    '''.format(num_pixels, num_nodes_hl, num_classes,
+               weights_by_layer[0], weights_by_layer[1],
                biases_by_layer[0], biases_by_layer[1])
     )
 

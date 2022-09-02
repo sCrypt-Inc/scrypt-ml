@@ -9,12 +9,12 @@ from scryptlib import (
 
 contract = 'testModel.scrypt' 
 
-compiler_result = compile_contract(contract, debug=True)
-desc = compiler_result.to_desc()
+#compiler_result = compile_contract(contract, debug=True)
+#desc = compiler_result.to_desc()
 
 # Load desc instead:
-#with open('./out/testModel.json', 'r') as f:
-#    desc = json.load(f)
+with open('./out/testModel_desc.json', 'r') as f:
+    desc = json.load(f)
 
 TestModel = build_contract_class(desc)
 test_model = TestModel()
@@ -34,10 +34,17 @@ def decimalize(image_arr):
     return np.around(image_arr * 10**8).astype('int64').tolist()
 
 
-def test_predict_first_10():
-    for i in range(10):
-        parsed_input = decimalize(x_test[i])
-        label = y_test[i]
+def test_predict_sample():
+    n = 10
+    correct = 0
 
-        assert test_model.predict(parsed_input, label).verify()
+    for i in range(n):
+        parsed_input = decimalize(x_test[i])
+        label = int(y_test[i])
+
+        if test_model.testPredict(parsed_input, label).verify() == True:
+            correct += 1
+
+    ca = correct / n
+    assert ca > 0.8
 
