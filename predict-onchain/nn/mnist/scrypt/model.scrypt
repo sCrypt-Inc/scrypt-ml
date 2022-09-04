@@ -4,12 +4,14 @@ import "../train/modelParams.scrypt";
 library Model {
 
     static function applyWeights0(int[ModelParams.N_INPUTS] in) : int[ModelParams.N_NODES_HL] {
-        int[ModelParams.N_NODES_HL] res = repeat(0, ModelParams.N_NODES_HL); 
+        int[ModelParams.N_NODES_HL] res = repeat(0, ModelParams.N_NODES_HL);
 
         loop (ModelParams.N_NODES_HL) : i {
+	    int sum = 0;
             loop (ModelParams.N_INPUTS) : j {
-                res[i] += ModelParams.WEIGHTS_0[j][i] * in[j];
+		sum += (ModelParams.getWeight0(i, j) * in[j]) / 100000000;
             }
+	    res[i] = sum;
         }
 
         return res;
@@ -19,9 +21,11 @@ library Model {
         int[ModelParams.N_NODES_OUT] res = repeat(0, ModelParams.N_NODES_OUT); 
 
 	loop (ModelParams.N_NODES_OUT) : i {
+	    int sum = 0;
 	    loop (ModelParams.N_NODES_HL) : j {
-	        res[i] += ModelParams.WEIGHTS_1[j][i] * in[j];
+		sum += (ModelParams.getWeight1(i, j) * in[j]) / 100000000;
 	    }
+            res[i] = sum;
 	}
 
         return res;
@@ -31,7 +35,7 @@ library Model {
         int[ModelParams.N_NODES_HL] res = repeat(0, ModelParams.N_NODES_HL); 
 
         loop (ModelParams.N_NODES_HL) : i {
-            res[i] = in[i] + ModelParams.BIASES_0[i];
+            res[i] = in[i] + ModelParams.getBias0(i);
         }
 
         return res;
@@ -41,7 +45,7 @@ library Model {
         int[ModelParams.N_NODES_OUT] res = repeat(0, ModelParams.N_NODES_OUT); 
 
         loop (ModelParams.N_NODES_OUT) : i {
-            res[i] = in[i] + ModelParams.BIASES_1[i];
+            res[i] = in[i] + ModelParams.getBias1(i);
         }
 
         return res;
@@ -69,7 +73,7 @@ library Model {
         // TODO: apply softmax func ?
 
         int idxMaxVal = 0;
-        int maxVal = -9999999999999999;     // TODO
+        int maxVal = step4[0];
         loop (ModelParams.N_NODES_OUT) : i {
             int outVal = step4[i];
             if (outVal > maxVal) {

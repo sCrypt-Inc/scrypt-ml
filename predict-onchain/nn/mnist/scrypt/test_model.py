@@ -9,12 +9,12 @@ from scryptlib import (
 
 contract = 'testModel.scrypt' 
 
-#compiler_result = compile_contract(contract, debug=True)
-#desc = compiler_result.to_desc()
+compiler_result = compile_contract(contract, debug=True)
+desc = compiler_result.to_desc()
 
 # Load desc instead:
-with open('./out/testModel_desc.json', 'r') as f:
-    desc = json.load(f)
+#with open('./out/testModel_desc.json', 'r') as f:
+#    desc = json.load(f)
 
 TestModel = build_contract_class(desc)
 test_model = TestModel()
