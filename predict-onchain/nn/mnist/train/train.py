@@ -7,7 +7,7 @@ from tensorflow.keras import layers
 
 # Model / data parameters
 num_pixels = 28 * 28
-num_nodes_hl = 5
+num_nodes_hl = 64
 num_classes = 10
 
 batch_size = 469
@@ -79,13 +79,13 @@ with open('modelParams.scrypt', 'w') as f:
         static bytes BIASES_1 = b'{}';
 
         static function getWeight0(int i, int j) : int {{
-            int start = (i * N_INPUTS * 5) + j * 5;
+            int start = (j * N_NODES_HL * 5) + i * 5;
             int end = start + 5;
             return unpack(WEIGHTS_0[start:end]);
         }}
 
         static function getWeight1(int i, int j) : int {{
-            int start = (i * N_NODES_HL * 5) + j * 5;
+            int start = (j * N_NODES_OUT * 5) + i * 5;
             int end = start + 5;
             return unpack(WEIGHTS_1[start:end]);
         }}
