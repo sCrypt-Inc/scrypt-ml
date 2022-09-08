@@ -11,7 +11,7 @@
 // Vlues of the NN should be formated as two's complement signed values within u64.
 
 const u32 N_NODES_IN = 784;
-const u32 N_NODES_HL = 3;
+const u32 N_NODES_HL = 5;
 const u32 N_NODES_OUT = 10;
 
 const u32 N_TEST_EXAMPLES = 10;
