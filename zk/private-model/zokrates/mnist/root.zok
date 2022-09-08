@@ -1,0 +1,120 @@
+// TODO: Pass trained models weights and biases as a private input.
+// TODO: Pass testing examples as a public input. 
+//       The values of this input will be encoded in the smart contract itself.
+
+// NN architecture:
+// 784 (input layer) * 64 (hidden layer) * 10 (output layer)
+// Hidden layer activation func: ReLU
+// Out func: argmax
+
+// Important:
+// Vlues of the NN should be formated as two's complement signed values within u64.
+
+const u32 N_NODES_IN = 784;
+const u32 N_NODES_HL = 3;
+const u32 N_NODES_OUT = 10;
+
+const u32 N_TEST_EXAMPLES = 10;
+const u32 TARGET_CA = 80;
+
+const u64 MAX_POS_VAL = 18446744073709551615;
+
+
+def gt(u64 a, u64 b) -> bool {
+    return (a - b) > MAX_POS_VAL;
+}
+
+def apply_weights0(u64[N_NODES_IN] inputs, \
+                   u64[N_NODES_HL][N_NODES_IN] weights) -> u64[N_NODES_HL] {
+    u64[N_NODES_HL] mut res = [0; N_NODES_HL];
+
+    for u32 i in 0..N_NODES_HL {
+        u64 mut sum = 0;
+        for u32 j in 0..N_NODES_IN {
+            sum = sum + (weights[i][j] * inputs[j]); 
+        }
+        res[i] = sum;
+    }
+
+    return res;
+}
+
+def apply_weights1(u64[N_NODES_HL] inputs, \
+                   u64[N_NODES_OUT][N_NODES_HL] weights) -> u64[N_NODES_OUT] {
+    u64[N_NODES_OUT] mut res = [0; N_NODES_OUT];
+
+    for u32 i in 0..N_NODES_OUT {
+        u64 mut sum = 0;
+        for u32 j in 0..N_NODES_HL {
+            sum = sum + (weights[i][j] * inputs[j]); 
+        }
+        res[i] = sum;
+    }
+
+    return res;
+}
+
+def add_biases0(u64[N_NODES_HL] mut inputs, \
+                u64[N_NODES_HL] biases) -> u64[N_NODES_HL] {
+    for u32 i in 0..N_NODES_HL {
+        inputs[i] = inputs[i] + biases[i];
+    }
+    return inputs;
+}
+
+def add_biases1(u64[N_NODES_OUT] mut inputs, \
+                u64[N_NODES_OUT] biases) -> u64[N_NODES_OUT] {
+    for u32 i in 0..N_NODES_OUT {
+        inputs[i] = inputs[i] + biases[i];
+    }
+    return inputs;
+}
+
+def apply_relu(u64[N_NODES_HL] mut inputs) -> u64[N_NODES_HL] {
+    for u32 i in 0..N_NODES_HL {
+        inputs[i] = if gt(inputs[i], 0) { 
+            inputs[i] 
+        } else {
+            0
+        };
+    }
+    return inputs;
+}
+
+def argmax(u64[N_NODES_OUT] inputs) -> u64 {
+    u64 mut max = inputs[0];
+    u64 mut res = 0;
+    u64 mut idx = 0;
+    for u32 i in 1..N_NODES_OUT {
+        u64 val = inputs[i];
+        max = if gt(val, max) { val } else { max };
+        res = if gt(val, max) { idx } else {res };
+        idx = idx + 1;
+    }
+    return res;
+}
+
+def main(private u64[N_NODES_HL][N_NODES_IN] weights0, \
+         private u64[N_NODES_OUT][N_NODES_HL] weights1, \
+         private u64[N_NODES_HL] biases0, \
+         private u64[N_NODES_OUT] biases1, \
+         u64[N_TEST_EXAMPLES][N_NODES_IN] test_examples, \
+         u64[N_TEST_EXAMPLES] test_labels) {
+
+    u32 mut correct = 0;
+
+    for u32 idx_test_example in 0..N_TEST_EXAMPLES {
+        u64[N_NODES_HL] step0 = apply_weights0(test_examples[idx_test_example], weights0);
+        u64[N_NODES_HL] step1 = add_biases0(step0, biases0);
+        u64[N_NODES_HL] step2 = apply_relu(step1);
+        u64[N_NODES_OUT] step3 = apply_weights1(step2, weights1);
+        u64[N_NODES_OUT] step4 = add_biases1(step3, biases1);
+        u64 res = argmax(step4);
+
+        u32 to_add = if res == test_labels[idx_test_example] { 1 } else { 0 };
+        correct = correct + to_add;
+    }
+
+    assert((correct * 100 / N_TEST_EXAMPLES * 100) >= TARGET_CA);
+    return;
+}
