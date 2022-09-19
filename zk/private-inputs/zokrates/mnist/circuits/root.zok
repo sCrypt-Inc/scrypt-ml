@@ -1,7 +1,3 @@
-// TODO: Pass trained models weights and biases as a private input.
-// TODO: Pass testing examples as a public input. 
-//       The values of this input will be encoded in the smart contract itself.
-
 // NN architecture:
 // 784 (input layer) * 64 (hidden layer) * 10 (output layer)
 // Hidden layer activation func: ReLU
@@ -10,12 +6,13 @@
 // Important:
 // Vlues of the NN should be formated as two's complement signed values within u64.
 
+from "./model_params" import WEIGHTS_0, WEIGHTS_1, BIASES_0, BIASES_1;
+
 const u32 N_NODES_IN = 784;
 const u32 N_NODES_HL = 5;
 const u32 N_NODES_OUT = 10;
 
-const u32 N_TEST_EXAMPLES = 10;
-const u32 TARGET_CA = 80;
+const u32 TARGET_CLASS = 8;
 
 const u64 MAX_POS_VAL = 9223372036854775807;
 
@@ -93,26 +90,14 @@ def argmax(u64[N_NODES_OUT] inputs) -> u64 {
     return res;
 }
 
-def main(private u64[N_NODES_HL][N_NODES_IN] weights0, \
-         private u64[N_NODES_OUT][N_NODES_HL] weights1, \
-         private u64[N_NODES_HL] biases0, \
-         private u64[N_NODES_OUT] biases1, \
-         u64[N_TEST_EXAMPLES][N_NODES_IN] test_examples, \
-         u64[N_TEST_EXAMPLES] test_labels) {
-    u32 mut correct = 0;
+def main(private u64[N_NODES_IN] model_inputs) {
+    u64[N_NODES_HL] step0 = apply_weights0(model_inputs, WEIGHTS_0);
+    u64[N_NODES_HL] step1 = add_biases0(step0, BIASES_0);
+    u64[N_NODES_HL] step2 = apply_relu(step1);
+    u64[N_NODES_OUT] step3 = apply_weights1(step2, WEIGHTS_1);
+    u64[N_NODES_OUT] step4 = add_biases1(step3, BIASES_1);
+    u64 res = argmax(step4);
 
-    for u32 idx_test_example in 0..N_TEST_EXAMPLES {
-        u64[N_NODES_HL] step0 = apply_weights0(test_examples[idx_test_example], weights0);
-        u64[N_NODES_HL] step1 = add_biases0(step0, biases0);
-        u64[N_NODES_HL] step2 = apply_relu(step1);
-        u64[N_NODES_OUT] step3 = apply_weights1(step2, weights1);
-        u64[N_NODES_OUT] step4 = add_biases1(step3, biases1);
-        u64 res = argmax(step4);
-
-        u32 to_add = if res == test_labels[idx_test_example] { 1 } else { 0 };
-        correct = correct + to_add;
-    }
-
-    assert((correct * 100) / (N_TEST_EXAMPLES * 100) >= TARGET_CA);
+    assert(res == TARGET_CLASS);
     return;
 }

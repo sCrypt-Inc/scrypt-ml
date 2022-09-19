@@ -21,7 +21,10 @@ async function run() {
         
     initialize().then((zokratesProvider) => {
         // compilation
-        const artifacts = zokratesProvider.compile(source);
+        const optionsCompile = { 
+            config: { debug: true }
+        };
+        const artifacts = zokratesProvider.compile(source, optionsCompile);
     
         // computation
         let privInputs = [
@@ -33,7 +36,14 @@ async function run() {
             testData['labels']
         ];
 
-        const { witness, output } = zokratesProvider.computeWitness(artifacts, privInputs);
+        let logs = [];
+        const optionsExecute = {
+              logCallback: (l) => {
+                logs.push(l);
+              },
+            };
+        const { witness, output } = zokratesProvider.computeWitness(artifacts, privInputs, optionsExecute);
+        console.log(logs);
     
         //// run setup
         //const keypair = zokratesProvider.setup(artifacts.program);
