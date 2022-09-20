@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "run": "#TODO"
+	"setup": "node main.js && zokrates export-verifier-scrypt -i data/vk.json -o data/verifier.scrypt"
   },
   "dependencies": {
     "zokrates-js": "^1.1.3"

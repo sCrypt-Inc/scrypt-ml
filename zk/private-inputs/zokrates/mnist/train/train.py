@@ -57,8 +57,8 @@ for layer in model.layers:
     res['biases'].append(biases)
 
 with open('../circuits/model_params.zok', 'w') as f:
-    f.write('const u64[N_NODES_HL][N_NODES_IN] WEIGHTS_0 = {}\n'.format(res['weights'][0]))
-    f.write('const u64[N_NODES_OUT][N_NODES_HL] WEIGHTS_1 = {}\n'.format(res['weights'][1]))
-    f.write('const u64[N_NODES_HL] BIASES_0 = {}\n'.format(res['biases'][0]))
-    f.write('const u64[N_NODES_OUT] BIASES_1 = {}\n'.format(res['biases'][1]))
+    f.write('const u64[{}][{}] WEIGHTS_0 = {};\n'.format(num_nodes_hl, num_pixels, res['weights'][0]))
+    f.write('const u64[{}][{}] WEIGHTS_1 = {};\n'.format(num_classes, num_nodes_hl, res['weights'][1]))
+    f.write('const u64[{}] BIASES_0 = {};\n'.format(num_nodes_hl, res['biases'][0]))
+    f.write('const u64[{}] BIASES_1 = {};\n'.format(num_classes, res['biases'][1]))
 

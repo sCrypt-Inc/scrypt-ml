@@ -12,7 +12,7 @@ const u32 N_NODES_IN = 784;
 const u32 N_NODES_HL = 5;
 const u32 N_NODES_OUT = 10;
 
-const u32 TARGET_CLASS = 8;
+const u64 TARGET_CLASS = 8;
 
 const u64 MAX_POS_VAL = 9223372036854775807;
 
