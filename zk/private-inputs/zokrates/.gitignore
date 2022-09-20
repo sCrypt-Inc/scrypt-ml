@@ -4,6 +4,7 @@ out
 vk.json
 proof.json
 verifier.scrypt
+pk.json
 
 # Logs
 logs
