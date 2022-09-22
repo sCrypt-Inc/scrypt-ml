@@ -36,26 +36,17 @@ async function run() {
             testData['labels']
         ];
 
-        let logs = [];
         const optionsExecute = {
-              logCallback: (l) => {
-                logs.push(l);
-              },
-            };
-        const { witness, output } = zokratesProvider.computeWitness(artifacts, privInputs, optionsExecute);
+            logCallback: (l) => {
+               logs.push(l);
+            },
+        };
+        const { witness, output } = zokratesProvider.computeWitness(artifacts, inputs, optionsExecute);
         console.log(logs);
-    
-        //// run setup
-        //const keypair = zokratesProvider.setup(artifacts.program);
-    
-        //// generate proof
-        //const proof = zokratesProvider.generateProof(artifacts.program, witness, keypair.pk);
-    
-        //// export solidity verifier
-        //const verifier = zokratesProvider.exportSolidityVerifier(keypair.vk);
-        //
-        //// or verify off-chain
-        //const isVerified = zokratesProvider.verify(keypair.vk, proof);
+        
+        // generate proof
+        const proof = zokratesProvider.generateProof(artifacts.program, witness, pk);
+        fs.writeFile('data/proof.json', JSON.stringify(proof));
     });
 }
 

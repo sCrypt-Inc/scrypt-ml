@@ -1,6 +1,10 @@
 abi.json
 out.r1cs
 out
+vk.json
+proof.json
+verifier.scrypt
+pk.json
 
 # Logs
 logs

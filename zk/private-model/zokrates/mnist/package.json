@@ -4,7 +4,9 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "setup": "node setup.js && zokrates export-verifier-scrypt -i data/vk.json -o data/verifier.scrypt",
+    "prove": "node prove.js"
   },
   "dependencies": {
     "zokrates-js": "^1.1.3"
